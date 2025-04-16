@@ -1,0 +1,1 @@
+![AbstractFabricUML](./AbstractFabric.png)
