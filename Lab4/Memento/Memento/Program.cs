@@ -87,14 +87,14 @@ class Program
     static void Main()
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        var editor = new TextEditor("Привіт, світ!");
+        var editor = new TextEditor("Текст 1");
 
         editor.DisplayContent();
 
-        editor.Edit("Привіт, програмування!");
+        editor.Edit("Текст 2");
         editor.DisplayContent();
 
-        editor.Edit("Привіт, C#!");
+        editor.Edit("Текст 3");
         editor.DisplayContent();
 
         editor.Undo();
