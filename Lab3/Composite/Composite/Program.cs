@@ -63,7 +63,6 @@ public class LightElementNode : LightNode
         get
         {
             StringBuilder sb = new StringBuilder();
-
             sb.Append($"<{tagName}");
             if (cssClasses.Any())
             {
@@ -95,6 +94,26 @@ public class LightElementNode : LightNode
     }
 }
 
+public class LightImageNode : LightNode
+{
+    private readonly string src;
+
+    public LightImageNode(string src)
+    {
+        this.src = src;
+    }
+
+    public override string OuterHTML
+    {
+        get
+        {
+            return $"<img src=\"{src}\" />";
+        }
+    }
+
+    public override string InnerHTML => string.Empty;
+}
+
 class Program
 {
     static void Main(string[] args)
@@ -110,5 +129,10 @@ class Program
         }
         Console.WriteLine(ul.OuterHTML);
 
+        var imageNode = new LightImageNode("https://example.com/image.jpg");
+        Console.WriteLine(imageNode.OuterHTML);
+
+        var localImageNode = new LightImageNode("images/local_image.jpg");
+        Console.WriteLine(localImageNode.OuterHTML);
     }
 }
