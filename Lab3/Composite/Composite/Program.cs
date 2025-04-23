@@ -41,6 +41,7 @@ public class LightElementNode : LightNode
     private readonly ClosingType closingType;
     private readonly List<string> cssClasses;
     private readonly List<LightNode> children;
+    private readonly Dictionary<string, List<Action>> eventListeners;
 
     public LightElementNode(string tagName, DisplayType displayType, ClosingType closingType, List<string> cssClasses = null)
     {
@@ -49,11 +50,32 @@ public class LightElementNode : LightNode
         this.closingType = closingType;
         this.cssClasses = cssClasses ?? new List<string>();
         this.children = new List<LightNode>();
+        this.eventListeners = new Dictionary<string, List<Action>>();
     }
 
     public void AddChild(LightNode node)
     {
         children.Add(node);
+    }
+
+    public void AddEventListener(string eventType, Action handler)
+    {
+        if (!eventListeners.ContainsKey(eventType))
+        {
+            eventListeners[eventType] = new List<Action>();
+        }
+        eventListeners[eventType].Add(handler);
+    }
+
+    public void TriggerEvent(string eventType)
+    {
+        if (eventListeners.ContainsKey(eventType))
+        {
+            foreach (var handler in eventListeners[eventType])
+            {
+                handler();
+            }
+        }
     }
 
     public int ChildCount => children.Count;
@@ -68,6 +90,11 @@ public class LightElementNode : LightNode
             if (cssClasses.Any())
             {
                 sb.Append($" class=\"{string.Join(" ", cssClasses)}\"");
+
+                foreach (var eventType in eventListeners.Keys)
+                {
+                    sb.Append($" data-event-{eventType}=\"true\"");
+                }
             }
             sb.Append(">");
 
@@ -93,6 +120,9 @@ public class LightElementNode : LightNode
             return sb.ToString();
         }
     }
+
+    // Expose the children list for triggering events in the main method.
+    public List<LightNode> Children => children;
 }
 
 class Program
@@ -106,9 +136,23 @@ class Program
         {
             var li = new LightElementNode("li", DisplayType.Block, ClosingType.Paired);
             li.AddChild(new LightTextNode(item));
+
+            li.AddEventListener("click", () => Console.WriteLine($"{item} clicked"));
+            li.AddEventListener("mouseover", () => Console.WriteLine($"{item} mouseover"));
+
             ul.AddChild(li);
         }
+
         Console.WriteLine(ul.OuterHTML);
 
+        foreach (var item in items)
+        {
+            var li = ul.Children.FirstOrDefault(child => child is LightElementNode el && el.InnerHTML.Contains(item)) as LightElementNode;
+            if (li != null)
+            {
+                li.TriggerEvent("click");
+                li.TriggerEvent("mouseover");
+            }
+        }
     }
 }
